@@ -220,7 +220,17 @@ c <- -1
 
 1. What is the sum of the first 100 positive integers? The formula for the sum of integers 1 through n is $n(n+l)/2$. Define $n=100$ using the formula. What is the sum?
 
+```{r}
+n <- 100
+n*(n+1)/2
+```
+
 2. Now use the same formula to compute the sum of the integers from 1 through 1,000.
+
+```{r}
+n <- 1000
+n*(n+1)/2
+```
 
 3. Look at the result of typing the following code into R:
 
@@ -232,19 +242,52 @@ sum(x)
 
 Based on the result, what do you think the functions seq and sum do? You can use the help system:
 
-A. sum creates a list of numbers and seq adds them up.
+```{r}
+help("seq")
+```
+
+```{r}
+help("sum")
+```
+
+Answer: 
 B. seq creates a list of numbers and sum adds them up.
-C. seq computes the difference between two arguments and sum computes the sum of 1 through 1000.
-D. sum always returns the same number.
 
 4. In math and programming, we say that we evaluate a function when we replace the argument with a given number. So if we type sqrt(4), we evaluate the sqrt function. In R, you can evaluate a function inside another function. The evaluations happen from the inside out. Use one line of code to compute the log, in base 10, of the square root of 100.
 
+```{r}
+log(sqrt(100), base = 10)
+```
+
 5. Which of the following will always return the numeric value stored in x? You can try out examples and use the help system if you want.
 
-A. log(10^x)
-B. log10(x^10)
+```{r}
+##suppose x is 5
+##example A
+
+log(10^5)
+```
+
+```{r}
+##example B
+
+log10(5^10)
+```
+
+```{r}
+##example C
+
+log(exp(5))
+```
+
+```{r}
+##example D
+
+exp(log(5, base = 2))
+```
+
+Answer:
 C. log(exp(x))
-D. exp(log(x, base = 2))
 
 ## 3.4 Data types
 Variables in R can be of different types. For example, we need to distinguish numbers from character strings and tables from simple lists of numbers. The function class helps us determine what type of object we have:
@@ -530,4 +573,3 @@ length(levels(murders$region))
 ```{r}
 table(state.region)
 ```
-
