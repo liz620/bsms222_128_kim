@@ -1,5 +1,5 @@
 ---
-title: "R Notebook"
+title: "thetidyverse_20190923"
 output: html_notebook
 ---
 
@@ -646,14 +646,12 @@ data_s_n %>% mutate(n = n, s_n, s_n_2 = s_n)
 ## and why do i have all those TRUE signs... something wrong with n?
 ```
 
-```{r}
-compute_s_n <- function(n){
-  x <- 1:n
-  data_frame(n = n, s_n = sum(x), s_n_2 = sum(x))
-}
-data_s_n <- map_df(n, compute_s_n)
-n <= 100
-```
+*what's wrong with the order of the columns.....
+
+*maybe i should define those column at first when i set the data frame.
+
+*and why do i have all those TRUE signs... something wrong with n?
+
 
 ```{r}
 compute_s_n <- function(n){
@@ -664,10 +662,11 @@ data_s_n <- map_df(n, compute_s_n)
 n <- 1:100
 data_s_n
 
-## yay!
-## i don't need to mutate the data frame again here because it's not the given data frame that i'm using. i can just define all the columns i want at first.
-## if you write '<', '<=', etc, R thinks that i am asking if it is true or not. When you want to define something, please use '<-'
-
-##dumby yejin :(
 ```
 
+yay!
+*i don't need to mutate the data frame again here because it's not the given data frame that i'm using. i can just define all the columns i want at first.
+
+*if you write '<', '<=', etc, R thinks that i am asking if it is true or not. When you want to define something, please use '<-'
+
+*dumby yejin :(
