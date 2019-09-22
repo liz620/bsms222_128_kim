@@ -1,0 +1,70 @@
+---
+title: "Gencode Assignment"
+output: html_notebook
+---
+```{r}
+library('tidyverse')
+library('readr')
+```
+
+
+```{r}
+#cols = c('chrom', 'source', 'feature_type', 'start', 'end', 'score', 'strand', 'phase', 'info')
+#d = read_delim('gencode.v31.basic.annotation.gtf.gz', 
+               #delim='\t', skip = 5, 
+               #progress = F,
+               #col_names = cols)
+```
+
+```{r}
+#write.table(d1, 'table.gene_genecode.20190918.txt', sep='\t', quote=F, row.names = F, col.names = T)
+
+```
+
+
+```{r}
+d= read_delim('table.gene_genecode.20190923.txt',delim='\t')
+```
+
+
+# Task
+1. Computes the number of transcripts per gene. What is the mean number of transcripts per gene? What is the quantile (25%, 50%, 75%) for these numbers? Which gene has the greatest number of transcript?  
+
+```{r}
+my_summary <- function(dat){
+  x <- quantile(dat$n, c(0.25, 0.5, 0.75))
+  y <- mean(dat$n)
+  z <- dat$gene_id[which.max(dat$n)]
+  a <- max(dat$n)
+  data_frame(average = y, quarter = x[1], half = x[2], three_quarter = x[3],  greatest = z, max = a)
+}
+
+d_gene_id <- separate(d, info, sep = ";", into = "gene_id") %>%
+  group_by(gene_id) %>%
+  tally() %>%
+  do(my_summary(.))
+d_gene_id
+
+```
+
+
+2. Compute the number of transcripts per gene among gene biotypes. For example, compare the number of transcript per gene between protein-coding genes, long noncoding genes, pseudogenes. You can find the details of gene biotype here. https://www.gencodegenes.org/pages/biotypes.html  
+
+```{r}
+d_gene_type <- separate(d, info, sep = ";", into = c("gene_id", "transcript_id","gene_type")) %>%
+  group_by(gene_type, gene_id) %>%
+  tally() %>%
+  do(my_summary(.))
+```
+
+
+
+3. Final task is to compute the number of transcripts per gene per chromosome. 
+
+```{r}
+d_gene_id_chr <- separate(d, info, sep = ";", into = "gene_id") %>%
+  group_by(chrom, gene_id) %>%
+  tally() %>%
+  do(my_summary(.))
+```
+
