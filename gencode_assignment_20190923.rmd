@@ -31,7 +31,7 @@ d= read_delim('table.gene_genecode.20190923.txt',delim='\t')
 1. Computes the number of transcripts per gene. What is the mean number of transcripts per gene? What is the quantile (25%, 50%, 75%) for these numbers? Which gene has the greatest number of transcript?  
 
 ```{r}
-my_summary <- function(dat){
+my_summary_1 <- function(dat){
   x <- quantile(dat$n, c(0.25, 0.5, 0.75))
   y <- mean(dat$n)
   z <- dat$gene_id[which.max(dat$n)]
@@ -42,7 +42,7 @@ my_summary <- function(dat){
 d_gene_id <- separate(d, info, sep = ";", into = "gene_id") %>%
   group_by(gene_id) %>%
   tally() %>%
-  do(my_summary(.))
+  do(my_summary_1(.))
 d_gene_id
 
 ```
@@ -54,7 +54,8 @@ d_gene_id
 d_gene_type <- separate(d, info, sep = ";", into = c("gene_id", "transcript_id","gene_type")) %>%
   group_by(gene_type, gene_id) %>%
   tally() %>%
-  do(my_summary(.))
+  do(my_summary_1(.))
+d_gene_type
 ```
 
 
@@ -65,6 +66,7 @@ d_gene_type <- separate(d, info, sep = ";", into = c("gene_id", "transcript_id",
 d_gene_id_chr <- separate(d, info, sep = ";", into = "gene_id") %>%
   group_by(chrom, gene_id) %>%
   tally() %>%
-  do(my_summary(.))
+  do(my_summary_1(.))
+d_gene_id_chr
 ```
 
