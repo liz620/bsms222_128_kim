@@ -202,7 +202,7 @@ error_avg(-10000)
 ```
 
 
-## 12.7
+## 12.7 Case study: self-reported student heights
 
 The heights we have been looking at are not the original heights reported by students. The original reported heights are also included in dslabs package and can be loaded like this:
 
