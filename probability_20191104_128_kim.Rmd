@@ -641,7 +641,7 @@ mean(cavs_winning_series)
 ```
 
 
-12. Two teams, $A$ and $B$, are playing a seven game series. Team $A$ is better than team $B$ and has a $p > 0.5$ chance of winning each game. Given a value $p$, the probability of winning the series for the underdog team $B$ can be computed with the following function based on a Monte Carlo simulation:
+12. Two teams, $A$ and $B$, are playing a seven game series. Team $A$ is better than team $B$ and has a $p > 0.5$ chance of winning each game. Given a value $p$, the probability of winning the series for the underdog team $B$ can be computed with the following function based on a Monte Carlo simulation :
 
 ```{r}
 prob_win <- function(p){
