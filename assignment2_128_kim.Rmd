@@ -1,0 +1,228 @@
+---
+title: "Assignment 1 : Visualize This"
+output: html_notebook
+---
+
+### Topic: Properties of metrics between NDD samples and general population
+
+#### 2018250128 Yejin Kim
+
+
+```{r}
+SCN2A = read_delim('table.scn2a.vep_20190916.filtered.txt', delim = '\t')
+```
+
+
+
+## 1. Introduction
+
+Advances in gene discovery for neurodevelopmental disorders have identified SCN2A dysfunction as a leading cause of infantile seizures, autism spectrum disorder, and intellectual disability. (Sanders, 2019). 
+
+
+### What is the SCN2A?
+
+Then, what is the SCN2A? SCN2A, the Sodium Channel, Voltage-Gated, Type 2, Alpha gene, is a gene that encodes the neuronal voltage-gated sodium channel $Na_{v}1.2$, which is involved in the initiation and propagation of action potentials in a range of neuron classes. It is located on the positive strand of chromosome 2 in human, and its mRNA transcript contains 27 exons that encode a 2,005 amino acid protein, $Na_{v}1.2$.
+
+
+### Relationship between SCN2A and NDD
+
+NaV1.2 is widely expressed throughout the human central nervous system, but not in peripheral tissues, so it is very affective to human central nervous system. According to Sanders, SCN2A has been identified as a prominent cause of a wide range of neurodevelopmental disorders, including autism spectrum disorder (ASD), intellectual disability (ID), and infantile-onset seizures (before the first year of life) of varying severity. (Sanders, 2019)
+
+
+
+
+## 2. About the dataset
+
+In this R notebook, I will use the dataset 'SCN2A' I defined before. It is the dataset about mutations on SCN2A for several groups of people including NDD patients groups and non-patient group. Let's have a look on several columns related to the topic.
+
+
+### Columns information
+
+```{r}
+head(SCN2A)
+```
+
+Column *'Variant'* is the identifier of uploaded variant which has the informations such as chromosome number, position, and the amino acids. 
+
+*'Group'* is ,as mentioned before, the column for patients' groups. Group 'gnomAD' is a group for non-patients, and the others are groups of people with specific NDDs.
+
+Column *'Consequence'* contains the informations of consequence type of mutations.
+
+Columns *'cDNA_position'*,*'CDS_position'*, and *'Protein_position'* are about the relative positions of base pair in various range, cDNA, CDS(coding sequence), and protein. 
+
+Column *'Amino_acids'* is about reference and variant amino acid, and the column *'Codons'* is about reference and variant codons.
+
+*'IMPACT'* column consist of 'HIGH',   'MODERATE', 'LOW', which are subjective impact classifications of consequence type.
+
+Lastly, *'VARIANT_CLASS'* is telling us the class of variants, such as SNV, deletion, insertion, etc.
+
+There are several more columns in the dataset, but these above are mainly related to the analyzation done on this assignment. 
+
+
+### About Groups
+
+Let's have a close look on column 'Group'. In the dataset, there are different groups like below:
+
+```{r}
+SCN2A %>%
+  group_by(Group) %>%
+  tally()
+```
+
+Each group stands for:
+
+1) gnomAD: group of non-patient people
+
+2) ASD/DD: Autism Spectrum Disorder/Developmental Disability
+
+3) BIS: Benign(familial) Infantile Seizures
+
+4) IEE: Infantile Epileptic Encephalopathy. It is a neurological disorder characterized by seizures. The disorder affects newborns, usually within the first three months of life (most often within the first 10 days) in the form of epileptic seizures.
+
+5) IEE_Mild/Ataxia: Ataxia which is a neurological sign consisting of lack of voluntary coordination of muscle movements that can include gait abnormality, speech changes, and abnormalities in eye movements.
+
+6) Schizophrenia: Schizophrenia is a mental illness characterized by abnormal behavior, strange speech, and a decreased ability to understand reality.
+
+7) Other, Unclear
+
+
+According to the dataset, mutations on one gene affect on several different neurodevelopmental diseases, and I want to find what differences there among different groups.
+As you see on the table above, there are some differences in sample numbers. Especially, we need to consider small sample sizes of 'IEE_Mild/Ataxia' and 'Schizophrenia' when we compare them.
+
+
+
+
+## 3. Analyzing the Data
+
+
+### Comparing Variant Class
+
+Let's compare amount of variant classes by Groups. First, let's divide the data to 'Patient' group and 'Non-patient' group and compare their variant classes:
+
+```{r}
+SCN2A_1 <- SCN2A %>%
+  filter(Group %in% c("ASD/DD", "BIS", "IEE", "IEE_Mild/Ataxia", "Schizophrenia", "gnomAD")) %>%
+  mutate(Group_in_2 = case_when(
+    Group %in% "gnomAD" ~ "Non-patient",
+    TRUE ~ "Patient"))
+
+SCN2A_1 %>%
+  ggplot(aes(Group_in_2, fill = VARIANT_CLASS)) +
+  geom_bar(position = "stack") +
+  ggtitle("Variant_class of Patient and Non-patient")
+```
+
+But there is a problem. As you see below:
+
+```{r}
+SCN2A_1 %>%
+  group_by(Group_in_2, VARIANT_CLASS) %>%
+  tally()
+```
+
+sample size of 'Non-patient' is so so big that it is difficult to compare. Also, the numbers for variant classes other than SNVs of 'Non-patient' are too small to be shown in the plot above. Therefore, as we checked that most of variants in 'Non-patient' group are SNVs, let's compare the variant classes among different diseases. I will reorder the Groups by its number of data.
+
+
+```{r}
+SCN2A_1_1 <- SCN2A_1 %>%
+  filter(Group %in% c("ASD/DD", "BIS", "IEE", "IEE_Mild/Ataxia", "Schizophrenia")) %>%
+  select('Group', 'VARIANT_CLASS') %>%
+  group_by(Group) %>%
+  count(VARIANT_CLASS) %>%
+  mutate(class_sum = sum(n))
+
+SCN2A_1_1 %>% ggplot(aes(reorder(Group, class_sum), n, fill = reorder(VARIANT_CLASS, n))) +
+  geom_bar(position = "stack", stat = "identity") +
+  coord_flip() +
+  geom_text_repel(aes(label = n), position = "stack", size = 2.5) +
+  ggtitle("Variant_class of Patients ") +
+  ylab("count") + xlab('Group') + 
+```
+
+As we see on the plot, SNV has the overwhelming majority of variants.
+In addition, we still have big differences of sample sizes, but we can check how ASD/DD is specifically affected by variable variants compared to other diseases. Still 'IEE_Mild/Ataxia' and 'Schizophrenia' have small sample sizes, so we can compare ASD/DD with IEE and BIS.
+
+
+### Comparing Positions
+
+Are there any specific areas which are crucial to neurodevelopmental diseases? Let's show the positions of mutations per Group.
+
+First of all, let's compare 'Patient' and 'Non-patient'. I will use the column 'Protein_position' for position information.
+
+We have to check the class of 'Protein_position' first.
+
+```{r}
+class(SCN2A$Protein_position)
+```
+
+The class 'character' is hard to treat on a plot, so let's change it as a numeric data. Also, let's use the data 'SCN2A_1' again to use the column 'Group_in_2'.
+
+```{r}
+SCN2A_1$IMPACT <- factor(as.factor(SCN2A_1$IMPACT), levels = c("HIGH", "MODERATE", "LOW"))
+SCN2A_1 %>%
+  mutate(Protein_position = as.numeric(Protein_position)) %>%
+  ggplot(aes(Protein_position, Group_in_2, col = IMPACT)) +
+  geom_point(alpha = 0.5, position = "jitter") +
+  theme_bw()
+```
+
+As we see on the plot, Non-patients have mutations all over the chromosomes and they also have mutations with "LOW" impact. On the other hand, in 'Patient' group, the points are gathered at specific parts of chromosomes, and there are no mutation with "LOW" impact.
+Additionally, when you focus on green dots which IMPACT is MODERATE, you can surely see different distributions of 'Patient' group and 'Non-patient' group. 
+
+Let's compare among the diseases.
+
+```{r}
+SCN2A$IMPACT <- factor(as.factor(SCN2A$IMPACT), levels = c("HIGH", "MODERATE", "LOW"))
+SCN2A %>%
+  mutate(Protein_position = as.numeric(Protein_position)) %>%
+  filter(Group %in% c("ASD/DD", "BIS", "IEE", "IEE_Mild/Ataxia", "Schizophrenia")) %>%
+  ggplot(aes(Protein_position, Group, col=IMPACT)) +
+  geom_point(alpha = 0.5) +
+  ggtitle("Positions of Mutations on Protein per Group with NDD") +
+  theme_dark()
+```
+
+
+I didn't use the position "jitter" to specify the parts where many mutations happen. Also, using dark background made it clear to see the color.
+
+
+To check each point, let's use position "jitter" with the same plot.
+
+```{r}
+SCN2A$IMPACT <- factor(as.factor(SCN2A$IMPACT), levels = c("HIGH", "MODERATE", "LOW"))
+SCN2A %>%
+  mutate(Protein_position = as.numeric(Protein_position)) %>%
+  filter(Group %in% c("ASD/DD", "BIS", "IEE", "IEE_Mild/Ataxia", "Schizophrenia")) %>%
+  ggplot(aes(Protein_position, Group, col=IMPACT)) +
+  geom_point(alpha = 0.5, position = "jitter") +
+  ggtitle("Positions of Mutation on Protein per Group with NDD") +
+  theme_dark()
+```
+
+To compare clearly among diseases, let's make a histogram with the same data. For this histogram, we don't use IMPACT data because only Group ASD/DD and Schizophrenia have two different IMPACT, when the others only have IMPACT 'moderate'. 
+
+```{r}
+SCN2A$IMPACT <- factor(as.factor(SCN2A$IMPACT), levels = c("HIGH", "MODERATE", "LOW"))
+SCN2A %>%
+  mutate(Protein_position = as.numeric(Protein_position)) %>%
+  filter(Group %in% c("ASD/DD", "BIS", "IEE", "IEE_Mild/Ataxia", "Schizophrenia")) %>%
+  ggplot(aes(Protein_position, fill = Group)) +
+  geom_histogram(bw = 5, position = "dodge") +
+  ggtitle("Positions of Mutation on Protein per Group with NDD")
+```
+
+
+According to the plots, we can check the specific parts of protein with lots of mutations. They are much more distinct in Group 'IEE' and 'ASD/DD'. For ASD/DD, the gathered positions are around 120, 260, 950, 150, and 1750. Especially for ASD/DD, there are several points with high impact, so those positions are noticable. For IEE, the points are mainly gathered at around 250, 875, 1000, 1300, and 1625. Still IEE have the biggest sample sizes among the diseases, it has the most clear focused positions. We can say that the positions of mutations are truly related to occurance of the disease.
+
+
+
+## 4. Conclusion
+
+SCN2A is a gene where encodes a voltage-gated sodium channel, $Na_{v}1.2$, which is widely expressed throughout the human central nervous system. When mutations happen on SCN2A, they affect to neurodevelopmental diseases, as shown on the dataset 'SCN2A'.
+
+The majority of variant class in the dataset is SNV whether the samples have NDD or not. Therefore, except for several cases from patient groups, variant class is not a very crital factor deciding the occurance of NDD.
+When checking the positions of mutations for each disease, it is shown that each disease have specific positions of protein where mutations happen frequently that have moderate or high impacts.
+
+It is assumed that those positions with many mutations would be related to the important function of the channel. As voltage-gated channels are proteins on the cell membrane, they are made of polypeptide chains. When polypeptides form particular proteins, they have such rules and patterns of associations. Lots of interactions among amino acids, such has disulfide bonds, hydrogen bonds, electrostatic interactions, and hydrophobic interactions, are main factors of forming proteins. This means that the positions of mutations are strongly related to the function of the proteins. For example, if effective mutation happens on the position where is related to the site of receptor, it would be critical to the function of the channel. 
+
+we need some further studies on what the specific positions are related to the function of the channel, and how to prevent the mutations on those positions.
