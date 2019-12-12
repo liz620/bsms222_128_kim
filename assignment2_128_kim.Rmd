@@ -122,7 +122,6 @@ SCN2A_1 %>%
 
 sample size of 'Non-patient' is so so big that it is difficult to compare. Also, the numbers for variant classes other than SNVs of 'Non-patient' are too small to be shown in the plot above. Therefore, as we checked that most of variants in 'Non-patient' group are SNVs, let's compare the variant classes among different diseases. I will reorder the Groups by its number of data.
 
-
 ```{r}
 SCN2A_1_1 <- SCN2A_1 %>%
   filter(Group %in% c("ASD/DD", "BIS", "IEE", "IEE_Mild/Ataxia", "Schizophrenia")) %>%
@@ -138,6 +137,7 @@ SCN2A_1_1 %>% ggplot(aes(reorder(Group, class_sum), n, fill = reorder(VARIANT_CL
   ggtitle("Variant_class of Patients ") +
   ylab("count") + xlab('Group') + scale_fill_discrete(name = "VARIANT_CLASS")
 ```
+
 
 As we see on the plot, SNV has the overwhelming majority of variants.
 In addition, we still have big differences of sample sizes, but we can check how ASD/DD is specifically affected by variable variants compared to other diseases. Still 'IEE_Mild/Ataxia' and 'Schizophrenia' have small sample sizes, so we can compare ASD/DD with IEE and BIS.
