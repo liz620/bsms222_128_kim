@@ -136,7 +136,7 @@ SCN2A_1_1 %>% ggplot(aes(reorder(Group, class_sum), n, fill = reorder(VARIANT_CL
   coord_flip() +
   geom_text_repel(aes(label = n), position = "stack", size = 2.5) +
   ggtitle("Variant_class of Patients ") +
-  ylab("count") + xlab('Group') + 
+  ylab("count") + xlab('Group') + scale_fill_discrete(name = "VARIANT_CLASS")
 ```
 
 As we see on the plot, SNV has the overwhelming majority of variants.
